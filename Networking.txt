@@ -1,0 +1,274 @@
+# OSI Model
+
+OSI = Open Systems Interconnection.
+
+- Developed by ISO (International Organization for Standardization).
+- Standardized as ISO 7498-1 in 1984.
+- It is a conceptual/reference model, NOT a program or protocol.
+- It divides network communication into 7 layers.
+
+7. Application   → HTTP, DNS, etc.
+6. Presentation  → Data representation, encryption, compression
+5. Session        → Session management
+4. Transport     → TCP, UDP
+3. Network       → IP, routing
+2. Data Link      → Ethernet, Wi-Fi, MAC
+1. Physical       → Signals, cables, radio waves
+
+Purpose:
+- Provides a standard way to understand network communication.
+- Divides a complex networking problem into separate responsibilities.
+- Helps engineers design, understand, and troubleshoot networks.
+
+Important:
+OSI layers are conceptual. Real systems implement networking using
+protocols, software, operating-system components, and hardware.
+
+
+
+
+# TCP/IP Model
+
+TCP/IP is a practical networking model used for communication over the Internet.
+
+It has 4 layers:
+
+1. Application → HTTP, HTTPS, DNS, WebSocket
+2. Transport → TCP, UDP
+3. Internet → IP, routing
+4. Network Access → Ethernet, Wi-Fi, MAC
+
+TCP/IP is different from the OSI model:
+- OSI → 7-layer conceptual/reference model
+- TCP/IP → 4-layer practical model
+
+For HLD, focus mainly on:
+Application → HTTP/HTTPS
+Transport → TCP/UDP
+Internet → IP/Routing
+
+
+
+2 - most imp layers in HLD 
+
+Application 
+Transport 
+
+
+
+# Application & Transport Layer
+
+## Application Layer
+- Closest layer to the user/application.
+- Defines how applications communicate over the network.
+- Examples: HTTP, HTTPS, DNS, WebSocket, SMTP.
+- In web development, APIs mainly use HTTP/HTTPS.
+
+Example:
+Browser → HTTP Request → Server
+
+## Transport Layer
+- Responsible for communication between applications/processes.
+- Handles how data is delivered between the client and server.
+- Main protocols: TCP and UDP.
+
+TCP:
+- Reliable and ordered delivery.
+- Retransmits lost data.
+- Connection-oriented.
+
+UDP:
+- Faster and low overhead.
+- No guaranteed delivery or ordering.
+- Connectionless.
+
+Simple idea:
+
+Application → "What data/message do I want to send?"
+Transport  → "How should that data be delivered?"
+
+Example:
+
+Browser → HTTP → TCP → IP → Internet → Server
+
+
+
+** Note -- In TCP connection is establishing using 3 way handshaking  i.e is sync -- sync-ack-- ack 
+
+for reliable data transfer sender and receiver uses the flow control technique 
+
+Segmentation and transmission 
+
+deciding the window size of for data transfer ack comes when full segment reaches to receiver  -- this is how the transmission happen
+
+how termination happen - initiator -- receiver ,  fin -- ack -- fin -- ack , time wait state -- 4 way handshaking 
+
+
+
+# TCP vs UDP
+
+TCP (Transmission Control Protocol):
+- Connection-oriented
+- Reliable delivery
+- Data arrives in order
+- Retransmits lost packets
+- More overhead
+- Generally slower than UDP
+- Used for: Web (HTTP/1.1, HTTP/2), databases, file transfer, email
+
+UDP (User Datagram Protocol):
+- Connectionless
+- No guaranteed delivery
+- No guaranteed ordering
+- No retransmission by UDP itself
+- Less overhead
+- Faster / lower latency
+- Used for: Online gaming, real-time audio/video, DNS, HTTP/3 (via QUIC)
+
+Simple difference:
+
+TCP → Reliability first
+UDP → Speed / Low latency first
+
+application layer protocols 
+
+http , https , ftp , snmp , smtp , dns etc
+
+
+
+HTTP (HyperText Transfer Protocol):
+HTTP is a protocol used for communication between a client (browser) and server.
+It defines how requests and responses are sent over the internet.
+
+HTTP Versions:
+
+HTTP/0.9:
+- Very basic version.
+- Only GET method.
+- No headers or status codes.
+- Used mainly to transfer HTML.
+
+HTTP/1.0:
+- Added headers and status codes.
+- Supported methods like GET, POST, HEAD.
+- Usually created a new TCP connection for each request.
+
+HTTP/1.1:
+- Introduced persistent connections (reuse the same TCP connection).
+- Added better caching, chunked transfer, Host header, etc.
+- Still suffered from HTTP-level Head-of-Line blocking.
+
+HTTP/2:
+- Uses binary framing instead of plain text.
+- Introduced multiplexing: multiple requests/responses can travel simultaneously over one TCP connection.
+- Faster and more efficient than HTTP/1.1.
+
+HTTP/3:
+- Uses QUIC instead of TCP.
+- QUIC runs over UDP.
+- Provides multiplexing, encryption and faster connection establishment.
+- Better performance on unreliable/changing networks.
+
+Easy way to remember:
+
+HTTP/0.9 → Basic GET
+HTTP/1.0 → Headers + status codes
+HTTP/1.1 → Persistent connections
+HTTP/2   → Multiplexing + binary
+HTTP/3   → QUIC + UDP
+
+
+HTTP Methods:
+
+HTTP methods tell the server what action the client wants to perform.
+
+1. GET
+   → Retrieve/fetch data from the server.
+   Example: GET /users
+
+2. POST
+   → Send/create new data on the server.
+   Example: POST /users
+
+3. PUT
+   → Completely update/replace existing data.
+   Example: PUT /users/10
+
+4. PATCH
+   → Partially update existing data.
+   Example: PATCH /users/10
+
+5. DELETE
+   → Delete data from the server.
+   Example: DELETE /users/10
+
+6. HEAD
+   → Same as GET but returns only headers, not the response body.
+   Used to check whether a resource exists or get its metadata.
+
+7. OPTIONS
+   → Tells which HTTP methods/options are supported by the server.
+   Commonly used in CORS.
+
+8. CONNECT
+   → Establishes a tunnel to the server.
+   Mainly used by proxies for HTTPS.
+
+9. TRACE
+   → Performs a diagnostic loop-back test.
+   Rarely used and often disabled for security reasons.
+
+
+Most important for development/interviews:
+
+GET     → Read
+POST    → Create
+PUT     → Replace/Update
+PATCH   → Partial Update
+DELETE  → Delete
+
+
+
+HTTPS (HyperText Transfer Protocol Secure):
+
+HTTPS is the secure version of HTTP.
+
+HTTP:
+Client → Server
+        ↓
+     Data can be
+     intercepted/read
+
+HTTPS:
+Client → Encryption → Server
+        ↑
+     Secure communication
+
+HTTPS uses TLS (Transport Layer Security) to secure HTTP communication.
+
+Main benefits of HTTPS:
+
+1. Encryption
+   → Data is encrypted so attackers cannot easily read it.
+
+2. Authentication
+   → TLS certificates help verify that you are communicating with the intended website.
+
+3. Data Integrity
+   → Ensures data is not modified during transmission.
+
+HTTP vs HTTPS:
+
+HTTP  → Not encrypted
+HTTPS → Encrypted using TLS
+
+HTTP usually uses port 80.
+HTTPS usually uses port 443.
+
+Example:
+
+HTTP:
+http://example.com
+
+HTTPS:
+https://example.com
