@@ -1,0 +1,39 @@
+# Client-Server Architecture
+
+Client-Server Architecture is a system where the **Client sends requests** and the **Server processes those requests and sends responses**.
+
+Client → Request → Server → Response → Client
+
+## Client
+- The client is the system that initiates a request.
+- Examples: Web browser, mobile app, desktop application.
+- Responsible mainly for UI/user interaction.
+
+## Server
+- A server is a program/system that listens for requests, processes them, and provides responses.
+- It handles business logic, authentication, validation, etc.
+- Examples: Node.js, FastAPI, Django, Spring Boot can be used to build backend servers.
+
+## Database
+- Stores persistent application data.
+- Usually accessed by the server, not directly by the client.
+
+Basic architecture:
+
+Client → Server → Database
+       ←         ←
+
+Example:
+Browser → GET /users → Backend Server → Database
+Browser ← User data ← Backend Server
+
+## Why do we need a Server?
+1. Security – keeps database credentials and sensitive logic hidden.
+2. Business Logic – handles rules and processing centrally.
+3. Data Management – communicates with the database.
+4. Multiple Clients – the same server can serve web, mobile, and other clients.
+
+## Important
+- Node.js = JavaScript runtime used to build backend/server applications.
+- FastAPI/Django = Python web frameworks used to build backend applications.
+- Server can refer to the **machine** running the application or the **software** that handles requests.
