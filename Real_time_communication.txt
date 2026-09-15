@@ -1,0 +1,116 @@
+Real time communication between client and server 
+
+The client repeatedly asks the server:
+
+"Do you have any new data?"
+
+Client                         Server
+   |                              |
+   |---- "Any new messages?" ---->|
+   |<----------- "No" ------------|
+   |                              |
+   |---- "Any new messages?" ---->|
+   |<----------- "No" ------------|
+   |                              |
+   |---- "Any new messages?" ---->|
+   |<------ "Yes, message!" ------|
+   |                              |
+
+Why is it called "polling"?
+
+Polling = repeatedly checking for something.
+
+Problem with Short Polling
+
+If nothing has changed, the client keeps making unnecessary requests
+
+This causes:
+
+More network requests
+More server load
+Wasted bandwidth
+Not truly real-time
+
+Short Polling
+     ↓
+Long Polling
+     ↓
+WebSockets
+     ↓
+Server-Sent Events (SSE)
+
+
+Long polling: Server waits and responds when new data is available (or a timeout occurs).
+
+Long polling reduces unnecessary requests compared with short polling, but it still uses normal HTTP request/response communication and isn't truly persistent like a WebSocket connection
+
+it reduces latency and server load
+
+server does not respond immediately 
+
+
+Websockets 
+
+WebSocket provides a persistent, full-duplex connection between client and server, allowing both sides to send data in real time without repeatedly creating HTTP requests.
+
+
+a HTTP request goes from client to server and with req ,  headers upgrade:websocket, connection:upgrade is passed and server res with code 101 switching: protocols
+websocket - accept - header
+
+
+
+Persistent connection
+Less overhead 
+True two-way communication
+Better for frequent updates
+Lower latency
+
+
+Headers = Metadata/information about the HTTP request or response.
+
+Payload = The actual data/content being sent in the request or response.
+
+Example:
+POST /users
+
+Header:
+Content-Type: application/json
+
+Payload:
+{
+   "name": "xyz",
+   "age": 2
+}
+
+
+SSE (Server-Sent Events) allows a server to continuously push
+real-time updates to a client over a single HTTP connection.
+It is one-way communication: Server → Client.
+
+
+Live notifications
+Live scores
+Stock prices
+Progress updates
+News feeds
+AI response streaming
+
+
+
+
+Monolithic & Microservice architecture 
+
+
+single code base
+development 
+testing
+deployment
+debug
+performance
+
+
+if code base is small it is easy to maintain monolithic , but as code base becomes huge if we made a single change in code base we need to redeploy entire code base test it it becomes difficult we can shift to microservice .
+
+	
+
+
