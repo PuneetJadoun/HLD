@@ -94,23 +94,3 @@ Stock prices
 Progress updates
 News feeds
 AI response streaming
-
-
-
-
-Monolithic & Microservice architecture 
-
-
-single code base
-development 
-testing
-deployment
-debug
-performance
-
-
-if code base is small it is easy to maintain monolithic , but as code base becomes huge if we made a single change in code base we need to redeploy entire code base test it it becomes difficult we can shift to microservice .
-
-	
-
-
