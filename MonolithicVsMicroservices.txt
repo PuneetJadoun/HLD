@@ -1,0 +1,54 @@
+Monolithic & Microservice architecture 
+
+
+single code base
+development 
+testing
+deployment
+debug
+performance
+
+
+if code base is small it is easy to maintain monolithic , but as code base becomes huge if we made a single change in code base we need to redeploy entire code base test it it becomes difficult we can shift to microservice .
+
+
+Dis 
+
+slower dev speed
+scalability
+reliability - single point of failure
+limitation in flexibility of tech stack usage
+
+opposite of these are the advantages of Microservice
+
+
+Dis of Micro
+
+management is hard 
+infra cost
+debugging
+standardisation
+
+Strangler Fig Pattern is a migration strategy where we gradually
+replace parts of a legacy system with a new system.
+
+A routing layer/API Gateway directs some functionality to the new
+system while the remaining functionality continues to use the old
+system. Over time, more functionality is migrated until the old
+system can be removed. 
+
+Legacy System
+     ↓
+Move one feature
+     ↓
+Move another feature
+     ↓
+Move more features
+     ↓
+Old system disappears
+
+
+
+
+
+
