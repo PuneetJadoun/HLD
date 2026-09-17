@@ -48,6 +48,89 @@ Move more features
 Old system disappears
 
 
+Strangler Fig:
+→ Gradually replaces parts of an entire/legacy system.
+→ Often uses routing/API gateway to decide old vs new.
+
+Branch by Abstraction:
+→ Gradually replaces a component/implementation inside the system.
+→ Uses an interface/abstraction between the caller and implementations.
+
+Branch by Abstraction is a technique for gradually replacing an
+existing implementation.
+
+We first introduce an abstraction layer between the application and
+the old implementation. Then we build the new implementation behind
+the same abstraction and gradually switch the application from the
+old implementation to the new one.
+
+
+
+RPC (Remote Procedure Call):
+RPC is a communication mechanism that allows one service to call a function/procedure running on another service over a network as if it were a local function.
+
+Example:
+Order Service → Payment Service
+              → processPayment()
+
+Common RPC technology: gRPC
+
+RPC vs REST:
+- RPC → Call a function: getUser(123)
+- REST → Access a resource: GET /users/123
+
+RPC is commonly used for communication between microservices.
+
+
+gRPC:
+gRPC is a high-performance RPC framework developed by Google that allows services to communicate with each other over a network.
+
+Key points:
+- Uses HTTP/2 for communication
+- Usually uses Protocol Buffers (Protobuf) for data serialization
+- Faster and more efficient than typical REST + JSON
+- Commonly used for service-to-service communication in microservices
+
+Example:
+Order Service → gRPC → Payment Service
+                         ↓
+                  processPayment()
+
+In short:
+gRPC = A fast RPC framework commonly used for communication between microservices.
+It is fast because it follows Binary encoding/decoding 
+
+
+Webhooks:
+A webhook is an HTTP callback where a third-party service sends a request
+to your server when a specific event occurs.
+
+Example:
+Payment Gateway
+      ↓
+"Payment Successful" event
+      ↓
+POST /webhook
+      ↓
+Your Backend
+      ↓
+Update Order → Send Confirmation
+
+Why use Webhooks?
+- Event-driven communication
+- No need for continuous polling
+- Real-time notifications from third-party services
+- Reduces unnecessary API requests
+
+Example use cases:
+- Stripe → Payment successful
+- GitHub → Push/PR event
+- Razorpay → Payment event
+- Slack → Event notification
+
+In short:
+Webhook = "Don't keep asking me for updates; I'll notify you when something happens.
+
 
 
 
