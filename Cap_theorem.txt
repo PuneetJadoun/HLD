@@ -1,0 +1,100 @@
+A distributed system is a collection of independent computers or
+services that communicate over a network and coordinate with each
+other to provide a unified system to users.
+
+
+1. Scalability
+   → Add more servers when traffic increases.
+
+2. Availability
+   → If one server fails, others can continue serving users.
+
+3. Fault tolerance
+   → System can continue working despite failures.
+
+4. Performance
+   → Work can be distributed across multiple machines.
+
+5. Geographic distribution
+   → Servers can be placed in different regions closer to users.
+
+
+
+STRONG CONSISTENCY
+
+Write → Database
+           ↓
+       All reads
+       immediately
+       see latest value
+
+Example:
+Balance = ₹100
+
+User updates → ₹50
+
+Immediately:
+Server 1 → ₹50
+Server 2 → ₹50
+Server 3 → ₹50
+
+
+
+
+EVENTUAL CONSISTENCY
+
+Write → Server 1
+           ↓
+      Replication
+       ↙   ↓   ↘
+   Server 2  Server 3
+
+For a short period:
+Server 1 → New value
+Server 2 → Old value
+Server 3 → Old value
+
+After some time:
+Server 1 → New value
+Server 2 → New value
+Server 3 → New value
+
+
+
+
+Strong Consistency:
+Every read after a successful write sees the latest value.
+
+Eventual Consistency:
+Reads may temporarily see stale data, but all replicas
+eventually converge to the latest value.
+
+
+functional and non functional requirements -- consistency , availability 
+
+
+availability -- operational/accessible
+
+SLA -- Service level agreement - measured in 9s
+
+two 9s -- 99 % -- down for 87.6 hrs
+three 9s -- 99.9% -- down for 8.76 hrs
+
+for banking like systems -- four9s -- 99.99% -- 52.6 mins
+
+five 9s - for healthcare systems
+
+six 9s -- for space missions
+
+
+How to make availability better
+
+Replication
+Scalibility
+geographical distribution
+load balancing
+failure mechanism
+monitoring
+cloud services
+schedule maintainance
+testing & simulation
