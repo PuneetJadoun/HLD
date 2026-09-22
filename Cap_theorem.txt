@@ -98,3 +98,58 @@ monitoring
 cloud services
 schedule maintainance
 testing & simulation
+
+
+If we have partition in databases if inconsistency occur then we need to make the database not available no request take response from down database.
+
+Inconsistence -- Not available 
+
+Consistence -- Available
+
+
+
+
+CAP Theorem 
+ 
+Consistency , Availability, Partition tolerance
+
+It says in a distributed system out of these 3 one can achieve maximum of 2 at same time it is impossible to gurantee all 3 at same time
+
+Consistency and availability examples
+
+yt comments -- A 
+insta feed -- A
+amazon cart -- C
+
+uber -- payment -- C
+     -- search -- A
+
+always ask before thinking what feature 
+
+
+Latency -- time delay in data transfer 
+ 
+throughput -- amount of data transfer per unit time 
+
+Bandwidth = maximum capacity of a network connection.
+
+
+Fault: A fault is a defect or abnormal condition in a system that can cause incorrect behavior.
+
+Failure: A failure occurs when a system or component fails to perform its required function as expected.
+
+Resiliency is the ability of a system to continue providing its intended service, or recover quickly, when failures or unexpected problems occur.
+
+Redundancy is having duplicate or backup components in a system so that if one component fails, another can take over and keep the system running.
+
+
+Stateful -- A stateful system stores information about a client's previous interactions and uses that state for subsequent requests. eg -- http req 
+simple , scalable 
+redundant data transmission
+
+
+Stateless -- A stateless system does not store client session state between requests. Each request contains all the information needed to process it . eg -- auth -- session keys
+personalise 
+no proper normalization
+complex scaling
+
