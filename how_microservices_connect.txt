@@ -1,0 +1,257 @@
+
+Distributed systems talk with each other using msg queues 
+
+
+MsgQueues -- async communication , Load balancing controlling the throughput , fault tolerance reliability , decoupling components , scaling by adding more msg queues, buffering and throttling (putting limits on number of request). 
+
+
+Producer - produces the message
+consumer - consume the message 
+
+
+order server -- msgqueue -- delivery server 
+                         -- receipt server 
+
+
+
+msgqueue
+one to one communication 
+
+pubsub - publisher subscriber 
+one to many communication   
+
+
+
+
+Kafka Design 
+
+
+Kafka: Key, Partition, and Offset
+
+Key: Determines which partition a message is sent to. Messages with the same key generally go to the same partition.
+
+Partition: A topic is divided into partitions to enable parallel processing and scalability. Each partition is an ordered sequence of messages.
+
+Offset: A unique sequential position assigned to each message within a partition. Consumers use offsets to track which messages they have read.	
+
+
+                                   APACHE KAFKA
+                       |
+          +------------+------------+
+          |                         |
+      PRODUCER                  CONSUMER
+          |                         ^
+          |                         |
+          v                         |
+    +-------------------------------+
+    |         KAFKA CLUSTER         |
+    |                               |
+    |   +-----------------------+   |
+    |   |        BROKER 1       |   |
+    |   |                       |   |
+    |   |    TOPIC: ORDERS      |   |
+    |   |                       |   |
+    |   |   +---------------+   |   |
+    |   |   |  PARTITION 0  |   |   |
+    |   |   |---------------|   |   |
+    |   |   | Offset 0      |   |   |
+    |   |   | Offset 1      |   |   |
+    |   |   | Offset 2      |   |   |
+    |   |   +---------------+   |   |
+    |   |                       |   |
+    |   |   +---------------+   |   |
+    |   |   |  PARTITION 1  |   |   |
+    |   |   |---------------|   |   |
+    |   |   | Offset 0      |   |   |
+    |   |   | Offset 1      |   |   |
+    |   |   +---------------+   |   |
+    |   +-----------------------+   |
+    |                               |
+    |   +-----------------------+   |
+    |   |        BROKER 2       |   |
+    |   |  (Other partitions)   |   |
+    |   +-----------------------+   |
+    +-------------------------------+
+                       |
+                       v
+                  CONSUMER
+                 (Reads events)
+
+
+KEY TERMS
+----------
+1. Producer   : Sends messages to Kafka.
+2. Consumer   : Reads messages from Kafka.
+3. Cluster    : Group of Kafka brokers.
+4. Broker     : Kafka server that stores data.
+5. Topic      : Logical category for messages.
+6. Partition  : Divides a topic for scalability.
+7. Offset     : Position of a message in a partition.
+8. Replication: Copies partitions across brokers
+                for fault tolerance.
+
+
+
+KEY       -> Determines the partition
+PARTITION -> Stores messages in order
+OFFSET    -> Message position within a partition
+
+NOTE:
+1. Same key generally goes to the same partition.
+2. Ordering is guaranteed within a partition.
+3. Each partition has its own offsets.
+4. Different partitions can be consumed in parallel.
+
+
+
+
+Kafka Use Cases
+==============
+
+1. Notification
+   - Communication
+   - Discounts
+
+2. Real-Time Data
+   - Analytics
+   - Personalized Recommendations
+   - Fraud Detection
+
+3. Aggregation
+   - Collecting data from multiple sources
+   - Combining data for analysis
+
+4. Logs
+   - Logs from multiple services
+   - Centralized log management
+
+5. Data Management
+   - Real-time data processing
+   - Data pipelines
+
+
+
+
+
+
+RabbitMQ 
+
+
+RabbitMQ Use Cases
+==================
+
+1. Notifications
+   - Email notifications
+   - SMS alerts
+   - Push notifications
+
+2. Task Queues
+   - Background jobs
+   - Image processing
+   - Sending emails
+
+3. Request Processing
+   - Distribute tasks among workers
+   - Handle asynchronous requests
+
+4. Message Routing
+   - Route messages to specific services
+   - Based on routing keys
+
+5. Microservices Communication
+   - Asynchronous communication
+   - Decouple services
+   - Reliable message delivery
+
+
+
+
+                  RABBITMQ
+                      |
+                  PRODUCER
+                      |
+                      v
+                 +----------+
+                 | EXCHANGE |
+                 +----------+
+                      |
+                Routing Key
+                      |
+          +-----------+-----------+
+          |           |           |
+          v           v           v
+      +-------+   +-------+   +-------+
+      | Queue1|   | Queue2|   | Queue3|
+      +-------+   +-------+   +-------+
+          |           |           |
+          v           v           v
+      Consumer1   Consumer2   Consumer3
+
+
+KEY TERMS
+=========
+
+1. Producer  : Sends messages to RabbitMQ.
+2. Exchange  : Routes messages to queues.
+3. Queue     : Stores messages until consumed.
+4. Binding   : Connects an exchange to a queue.
+5. Routing Key: Helps determine where messages go.
+6. Consumer  : Receives and processes messages.
+7. ACK       : Confirms successful message processing.
+8. NACK      : Rejects a message; it may be requeued.
+
+
+
+
+
+
+
+
+          KAFKA vs RABBITMQ
+          =================
+
+1. TYPE
+   Kafka     : Distributed event streaming platform
+   RabbitMQ  : Message broker
+
+2. ARCHITECTURE
+   Kafka     : Topics, partitions, offsets
+   RabbitMQ  : Exchanges, queues, bindings
+
+3. MESSAGE STORAGE
+   Kafka     : Retains messages based on retention policy
+   RabbitMQ  : Usually removes messages after ACK
+
+4. MESSAGE CONSUMPTION
+   Kafka     : Consumers pull messages
+   RabbitMQ  : Broker pushes messages to consumers
+
+5. MESSAGE REPLAY
+   Kafka     : Supports replay using offsets
+   RabbitMQ  : No native replay of acknowledged messages
+
+6. MESSAGE ORDERING
+   Kafka     : Ordering within a partition
+   RabbitMQ  : Ordering within a queue, subject to configuration
+
+7. SCALABILITY
+   Kafka     : High-throughput distributed event streaming
+   RabbitMQ  : Scales message delivery using queues and clusters
+
+8. MESSAGE ROUTING
+   Kafka     : Primarily topic and partition based
+   RabbitMQ  : Flexible routing using exchanges and routing keys
+
+9. ACKNOWLEDGMENT
+   Kafka     : Consumers commit offsets
+   RabbitMQ  : Consumers ACK individual messages
+
+10. COMMON USE CASES
+    Kafka     : Real-time analytics, logs, event streaming
+    RabbitMQ  : Background jobs, notifications, task queues
+
+KEY DIFFERENCE
+==============
+Kafka     -> Stores event streams for consumers to read
+RabbitMQ  -> Routes and delivers messages to consumers
+
