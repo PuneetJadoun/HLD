@@ -1,0 +1,272 @@
+Caching – Locality of Reference Principle
+
+→ Production loads
+→ Pre-computed results
+→ Slow operations
+
+Cache – In memory
+
+* Low latency
+temp storage
+
+DB – On disk
+
+* High latency
+permanent storage
+
+
+# Caching
+
+**Caching:** Storing frequently accessed data in faster memory (RAM) to reduce latency and database load.
+
+### 1. What to Cache?
+
+* Frequently accessed data
+* Expensive database queries
+* Data that doesn't change frequently
+* Reusable API responses
+
+### 2. Cache Eviction
+
+Removing cached data when memory is full.
+
+**Common eviction policies:**
+
+* **LRU (Least Recently Used):** Removes the item that hasn't been accessed for the longest time.
+* **LFU (Least Frequently Used):** Removes the item with the fewest accesses.
+* **FIFO (First In, First Out):** Removes the item inserted earliest.
+* **Random:** Removes a randomly selected item.
+
+### 3. TTL (Time To Live)
+
+* Defines how long data remains in the cache.
+* Expired data is automatically removed.
+* Example: Cache product details for 10 minutes.
+
+### 4. Redis Eviction Policies
+
+* `allkeys-lru`: Evicts least recently used keys.
+* `allkeys-lfu`: Evicts least frequently used keys.
+* `volatile-lru`: Evicts least recently used keys with TTL.
+* `noeviction`: Doesn't evict keys; rejects writes when memory is full.
+
+### 5. Cache Invalidation
+
+Updating or removing cached data when the original data changes to prevent stale data.
+
+**Example:** When a product's price changes in MongoDB, update or delete its cached value.
+
+### Key Takeaway
+
+* **Cache selection:** What data to store.
+* **Eviction:** What data to remove when memory is full.
+* **TTL:** How long data stays in the cache.
+* **Invalidation:** How to handle outdated data.
+
+
+write through cache
+
+adv -- data consistency 
+    -- reliable 
+
+disadv -- latency 
+       -- performance input 
+
+write back cache 
+
+adv -- improved write performance 
+     -- latency 
+
+disadv -- data integrity 
+       -- at risk/ not reliable - cos cache is volatile it can goes down before writing from cache to DB
+
+
+
+
+# 1. Cache Coherency
+
+**Definition:** Ensuring that multiple caches have consistent and up-to-date copies of the same data.
+
+**Problem:**
+
+* Multiple servers may cache the same data.
+* When one server updates the data, other caches may contain stale data.
+
+**Techniques:**
+
+* **Cache Invalidation:** Remove outdated cached data.
+* **Write-through:** Update both cache and database on every write.
+* **Pub/Sub:** Notify other servers about data changes so they can update or invalidate their caches.
+
+**Example:** If Server A updates a product price from ₹500 to ₹600, Server B's cache should also be updated or invalidated.
+
+# 2. Centralized Cache
+
+**Definition:** A single shared cache server used by multiple application servers to store and retrieve cached data.
+
+**Example:** Multiple Node.js servers using a single Redis instance.
+
+**Advantages:**
+
+* Shared cache across multiple servers.
+* Easy to manage.
+* Reduces duplicate cached data.
+* Helps maintain consistency.
+
+**Disadvantages:**
+
+* Can become a performance bottleneck.
+* Single point of failure if not replicated.
+* Network latency when accessing the cache.
+
+**Example Architecture:**
+
+Application Servers (A, B, C) → Redis (Centralized Cache) → Database
+
+**Key Takeaway:**
+
+* **Cache Coherency:** Keeps cached data consistent across multiple caches.
+* **Centralized Cache:** Provides a shared cache for multiple application servers.
+
+
+
+
+# Proxy
+
+**Definition:** A proxy is an intermediary between a client and a server. It forwards requests and responses between them.
+
+### 1. Types of Proxy
+
+**Forward Proxy**
+
+* Acts on behalf of the client.
+* Sits between clients and external servers.
+* Used for privacy, content filtering, and access control.
+* Example: A company proxy controlling employees' internet access.
+
+**Reverse Proxy**
+
+* Acts on behalf of the server.
+* Sits between clients and backend servers.
+* Used for load balancing, caching, SSL termination, and security.
+* Example: Nginx forwarding requests to multiple backend servers.
+
+### 2. Forward Proxy vs Reverse Proxy
+
+| Forward Proxy                | Reverse Proxy                        |
+| ---------------------------- | ------------------------------------ |
+| Protects clients             | Protects backend servers             |
+| Intercepts client requests   | Receives requests for servers        |
+| Client knows about the proxy | Client usually doesn't know about it |
+| Controls outgoing traffic    | Manages incoming traffic             |
+| Example: Corporate proxy     | Example: Nginx                       |
+
+### 3. Advantages of Reverse Proxy
+
+* **Load Balancing:** Distributes requests across multiple servers.
+* **Caching:** Stores responses to reduce backend load.
+* **Security:** Hides backend server details.
+* **SSL Termination:** Handles HTTPS encryption and decryption.
+* **Compression:** Compresses responses to reduce bandwidth.
+
+### 4. Example Architecture
+
+Client → Nginx (Reverse Proxy) → Backend Servers (A, B, C) → Database
+
+Nginx receives client requests and forwards them to the appropriate backend server.
+
+### Key Takeaway
+
+* **Forward Proxy:** Represents the client.
+* **Reverse Proxy:** Represents the server.
+* **Nginx:** Commonly used as a reverse proxy for web applications.
+
+
+
+ 
+Access Control: Blocks access to restricted websites.
+Privacy: Hides the client's IP address from external websites.
+Security: Filters malicious or suspicious requests.
+Monitoring: Allows organizations to monitor internet usage.
+Caching: Stores frequently accessed content to reduce bandwidth and improve response time
+
+
+
+
+
+
+# Load Balancer
+
+**Definition:** A load balancer distributes incoming client requests across multiple backend servers.
+
+### Why Do We Need It?
+
+1. **Traffic Distribution:** Distributes requests across multiple servers.
+2. **Prevent Overloading:** Prevents a single server from handling all requests.
+3. **High Availability:** Redirects traffic to healthy servers if one fails.
+4. **Scalability:** Allows adding more servers as traffic increases.
+5. **Fault Tolerance:** Keeps the application running even if a server fails.
+6. **Performance:** Reduces server workload and helps improve response times.
+
+### Working
+
+1. Client sends a request to the load balancer.
+2. Load balancer selects a backend server.
+3. Server processes the request.
+4. Response is returned to the client through the load balancer.
+
+### Load Balancing Algorithms
+
+* **Round Robin:** Distributes requests sequentially among servers.
+* **Weighted Round Robin:** Distributes requests based on server capacity.
+* **Least Connections:** Sends requests to the server with the fewest active connections.
+* **IP Hash:** Selects a server based on the client's IP address.
+
+### Types
+
+* **Layer 4:** Routes traffic using IP addresses and TCP/UDP ports.
+* **Layer 7:** Routes traffic using HTTP details such as URLs and headers.
+
+### Examples
+
+* Nginx
+* HAProxy
+* AWS Elastic Load Balancer
+
+### Key Takeaway
+
+A load balancer improves scalability, availability, and performance by distributing traffic across multiple servers.
+
+
+
+
+# CDN (Content Delivery Network)
+
+**Definition:** A CDN is a network of geographically distributed servers that delivers content to users from the nearest server.
+
+**Why Do We Need It?**
+
+* **Low Latency:** Delivers content from nearby servers.
+* **Faster Loading:** Reduces website loading time.
+* **Reduced Server Load:** Decreases requests to the origin server.
+* **High Availability:** Distributes content across multiple locations.
+* **Scalability:** Handles high traffic efficiently.
+
+**Working:**
+
+1. User requests content from a website.
+2. CDN directs the request to a nearby edge server.
+3. If cached content exists (cache hit), it is returned.
+4. If not (cache miss), the CDN fetches it from the origin server and may cache it.
+5. Subsequent requests can be served from the CDN cache.
+
+**What Does a CDN Cache?**
+
+* Images
+* Videos
+* CSS and JavaScript files
+* Other static content
+
+**Examples:** Cloudflare, Amazon CloudFront, Akamai, Fastly.
+
+**Key Takeaway:** A CDN reduces latency and origin server load by caching and delivering content from geographically distributed servers.
