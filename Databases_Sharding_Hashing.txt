@@ -1,0 +1,415 @@
+How to choose data store
+
+data model -- structure and complexity of data how to represent.
+
+scalability -- throughput , latency, volume
+
+consistency 
+
+scalability
+
+availability
+
+security
+
+
+data stores -- redis , msgqueues, cdn, s3, google drive etc
+
+
+Databases
+
+relational -- MySQL , PostgreSQL, oracle, sqllite , MariaDB, IBM db
+
+non relational 
+  Document db -- mongodb, couche db, raven db 
+
+ key value stores -- redis, dynamo db, riak
+
+ column db -- apache Casandra , Hbase
+  
+ graph base -- neo 4j, Neptune
+
+ time series -- inflax db, open ts db
+
+
+
+
+ 
+
+SQL vs NoSQL — Comparison
+Based on your notes, here is the clean comparison:
+Aspect	                      SQL	                                      NoSQL
+Data model	Structured, relational tables	                Semi-structured / unstructured data
+Schema	        Fixed schema — defined beforehand	        Flexible schema — can change easily
+Data storage	Rows & columns	Documents,                      key-value, graph, wide-column, etc.
+Consistency	Usually strong consistency	                Often eventual consistency, depending on DB
+Transactions	ACID transactions                               Varies; many systems prioritize availability and scalability
+Consistency model	ACID	                                Often discussed using CAP theorem / BASE
+Relationships	Strong support using foreign keys & JOINs       Usually embedding or references; joins are less central
+Retrieval	SQL queries	                                Database-specific APIs/query languages
+Complex queries	                                                Excellent for joins, aggregations and reporting	Usually better for predictable/simple access patterns
+Scalability	Traditionally vertical scaling; horizontal 	Designed strongly around horizontal scaling
+                scaling possible through replication/sharding
+
+Best suited for	Structured, relational and transactional data	Flexible, rapidly changing or massive distributed data
+Examples	PostgreSQL, MySQL, Oracle, SQLite	        MongoDB, Cassandra, DynamoDB, Redis, Neo4j
+
+
+
+
+
+Scaling
+
+Vertical Scaling (Scale Up)	                                                    Horizontal Scaling (Scale Out)
+Increase resources of one server	                                            Add more servers
+More CPU, RAM, storage, etc.	                                                    More machines handle the workload
+Example: 8 GB → 64 GB RAM	                                                    Example: 1 server → 10 servers
+Simpler to implement	More complex
+Limited by maximum hardware capacity	                                            Can scale by adding more machines
+Usually has a single-server failure risk	                                    Better fault tolerance
+Less suitable for very large distributed systems	                            Well suited for distributed systems
+Often easier for databases	                                                    Common for web/application servers
+Scale UP                                                                            Scale OUT 
+
+
+
+
+Database Partitioning
+
+
+                    PARTITIONING
+                         |
+              Splitting a large table
+                         |
+              ┌──────────┴──────────┐
+              ↓                     ↓
+       HORIZONTAL              VERTICAL
+       PARTITIONING            PARTITIONING
+              ↓                     ↓
+         Split ROWS            Split COLUMNS
+
+
+Meaning:
+→ Divide a table based on ROWS.
+→ Every partition contains the SAME columns.
+→ Each partition contains DIFFERENT rows.
+
+Example:
+
+Original Users Table
+
++----+-------+-----+----------+
+| ID | Name  | Age | City     |
++----+-------+-----+----------+
+| 1  | A     | 20  | Delhi    |
+| 2  | B     | 22  | Mumbai   |
+| 3  | C     | 25  | Pune     |
+| 4  | D     | 21  | Chennai  |
++----+-------+-----+----------+
+
+
+After Horizontal Partitioning:
+
+Partition 1
++----+-------+-----+----------+
+| ID | Name  | Age | City     |
++----+-------+-----+----------+
+| 1  | A     | 20  | Delhi    |
+| 2  | B     | 22  | Mumbai   |
++----+-------+-----+----------+
+
+Partition 2
++----+-------+-----+----------+
+| ID | Name  | Age | City     |
++----+-------+-----+----------+
+| 3  | C     | 25  | Pune     |
+| 4  | D     | 21  | Chennai  |
++----+-------+-----+----------+
+
+Notice:
+→ Same columns
+→ Different rows
+
+
+
+
+
+
+
+
+Sharding
+
+HORIZONTAL PARTITIONING
+        |
+        ↓
+Splitting a table based on ROWS.
+        |
+        ↓
+Each partition has the same columns
+but contains different rows.
+
+
+Example:
+
+Users
++----+-------+-----+
+| ID | Name  | Age |
++----+-------+-----+
+| 1  | A     | 20  |
+| 2  | B     | 22  |
+| 3  | C     | 25  |
+| 4  | D     | 21  |
++----+-------+-----+
+
+After horizontal partitioning:
+
+Partition 1              Partition 2
++----+-------+-----+      +----+-------+-----+
+| ID | Name  | Age |      | ID | Name  | Age |
++----+-------+-----+      +----+-------+-----+
+| 1  | A     | 20  |      | 3  | C     | 25  |
+| 2  | B     | 22  |      | 4  | D     | 21  |
++----+-------+-----+      +----+-------+-----+
+
+
+SHARDING
+        |
+        ↓
+Sharding is horizontal partitioning where
+the partitions are distributed across
+different database servers/nodes.
+
+                    Application
+                         |
+                  Sharding Layer
+                 /       |       \
+                ↓        ↓        ↓
+             Server 1  Server 2  Server 3
+             Shard 1   Shard 2   Shard 3
+             IDs 1-100 IDs 101-200 IDs 201-300
+
+
+WHY SHARDING?
+→ Handle very large datasets
+→ Distribute database load
+→ Improve scalability
+→ Avoid depending on one database server
+
+
+LOGICAL PARTITIONING
+→ Data is divided logically into partitions.
+→ Partitions may still exist on the SAME
+  physical database/server.
+
+Example:
+
+Database Server
+     |
+     ├── Partition 1 → IDs 1-1000
+     ├── Partition 2 → IDs 1001-2000
+     └── Partition 3 → IDs 2001-3000
+
+
+PHYSICAL PARTITIONING / SHARDING
+→ Data is distributed across DIFFERENT
+  physical database servers/nodes.
+
+Server 1 → IDs 1-1000
+Server 2 → IDs 1001-2000
+Server 3 → IDs 2001-3000
+
+
+"Horizontal partitioning means splitting a table
+based on rows. When these partitions are distributed
+across different database nodes, it is called sharding.
+The main purpose of sharding is to distribute data
+and workload so the database can scale horizontally."
+
+
+IMPORTANT:
+Horizontal partitioning ≠ always sharding.
+
+Horizontal partitioning:
+→ Split rows into partitions.
+
+Sharding:
+→ Horizontal partitioning + distribution
+  across different database nodes.
+
+
+
+
+→ We use an ALGORITHM / FUNCTION
+  to decide which shard stores the data.
+
+Example:
+
+User ID = 101
+
+Suppose there are 3 shards:
+
+Shard = User_ID % Number_of_Shards
+
+101 % 3 = 2
+
+Therefore:
+
+User 101 → Shard 2
+
+
+Example:
+
+User ID       Shard
+1             1
+2             2
+3             0
+4             1
+5             2
+6             0
+
+
+
+→ Data is divided based on a LOGICAL ATTRIBUTE
+  or business rule.
+
+Example:
+
+Users are divided by region:
+
+India users      → Shard 1
+US users         → Shard 2
+Europe users     → Shard 3
+
+
+Another example:
+
+Customer ID 1-1000       → Shard 1
+Customer ID 1001-2000    → Shard 2
+Customer ID 2001-3000    → Shard 3
+
+
+
+
+
+
+1. HASH-BASED SHARDING
+→ Apply a hash function to a shard key.
+→ Hash determines which shard stores the data.
+
+Example:
+hash(user_id) % 3
+
+User 101 → Shard 2
+User 102 → Shard 0
+
+Pros:
+→ Good distribution of data
+→ Reduces hotspots
+
+Cons:
+→ Adding/removing shards can require data redistribution
+
+
+
+
+2. RANGE-BASED SHARDING
+→ Divide data into ranges of the shard key.
+
+Example:
+
+Shard 1 → User ID 1 - 1000
+Shard 2 → User ID 1001 - 2000
+Shard 3 → User ID 2001 - 3000
+
+Pros:
+→ Simple
+→ Range queries are efficient
+
+Cons:
+→ Can create hotspots if new data mostly falls
+  into one range
+
+
+
+
+3. DIRECTORY-BASED SHARDING
+→ Maintain a directory/mapping that tells
+  where each piece of data is stored.
+
+Example:
+
+User 101 → Shard 1
+User 102 → Shard 3
+User 103 → Shard 2
+
+Directory:
+101 → S1
+102 → S3
+103 → S2
+
+Pros:
+→ Flexible
+→ Data can be distributed arbitrarily
+
+Cons:
+→ Directory becomes an additional component
+→ Directory must remain available/consistent
+
+
+
+4. GEOGRAPHICAL SHARDING
+→ Store data based on geographical location.
+
+Example:
+
+India      → Shard 1
+USA        → Shard 2
+Europe     → Shard 3
+Asia       → Shard 4
+
+Pros:
+→ Lower latency for users
+→ Useful for regional data/compliance
+
+Cons:
+→ Uneven traffic between regions
+→ More complex management
+
+
+
+5. RANDOM SHARDING
+→ Data is assigned to a shard randomly.
+
+Example:
+
+User A → Shard 2
+User B → Shard 1
+User C → Shard 3
+User D → Shard 1
+
+Pros:
+→ Very simple
+→ Can distribute data fairly evenly
+
+Cons:
+→ Hard to locate related data
+→ Queries may need to contact multiple shards
+
+
+
+HASH       → Hash function decides shard
+RANGE      → Value range decides shard
+DIRECTORY  → Mapping table decides shard
+GEOGRAPHIC → Location decides shard
+RANDOM     → Random assignment decides shard
+
+
+
+
+
+
+
+
+
+
+ 
