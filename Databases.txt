@@ -1,0 +1,329 @@
+## Row-Oriented Database vs Column-Oriented Database
+
+### 1. Row-Oriented Database (Row DB)
+- Stores data row by row. All values of one record are stored together.
+- Best for OLTP (Online Transaction Processing): frequent inserts, updates, deletes, and fetching complete records.
+- Examples: PostgreSQL, MySQL.
+- Use cases: banking, user profiles, orders, and e-commerce transactions.
+
+### 2. Column-Oriented Database (Column DB)
+- Stores data column by column. Values of the same column are stored together.
+- Best for OLAP (Online Analytical Processing): aggregations, reporting, and analyzing large datasets.
+- Examples: ClickHouse, Amazon Redshift, Google BigQuery.
+- Use cases: analytics dashboards, sales reports, and data warehouses.
+
+### 3. Example
+Table: Users (ID, Name, Age)
+
+Row storage: (1, Rahul, 21) | (2, Aman, 22) | (3, Priya, 20)
+
+Column storage: IDs (1, 2, 3) | Names (Rahul, Aman, Priya) | Ages (21, 22, 20)
+
+### 4. Key Difference
+- Row DB: efficient when reading or updating individual records.
+- Column DB: efficient when reading selected columns across millions of records and performing aggregations.
+
+##
+Use a row-oriented database for transactional applications and a column-oriented database for analytical workloads. Some databases support both approaches, so choose based on workload, not just the database name.
+
+
+
+
+## 1. Database Indexing
+
+Indexing is a technique used to speed up data retrieval from a database without scanning the entire table.
+
+- An index stores search-key values and pointers/references to the corresponding records.
+- It improves SELECT query performance but requires extra storage and can slow down INSERT, UPDATE, and DELETE operations.
+- Example: An index on user_id helps find a user quickly instead of scanning every row.
+- Common types: B-tree, B+ tree, hash index.
+
+
+## 1. M-way Search Tree
+An M-way search tree is a search tree in which each node can have at most M children and M−1 keys. Keys are stored in sorted order, and each child represents a range of key values. A basic M-way tree is not necessarily balanced, so it can become tall and slow to search.
+
+## 2. B-Tree
+A B-Tree is a self-balancing multiway search tree designed for efficient searching and storage access. Each node can contain multiple sorted keys and child pointers. All leaf nodes are at the same depth. Keys and associated records or record pointers can exist in internal nodes as well as leaf nodes. Insertions and deletions maintain balance using splitting, merging, or redistribution.
+
+## 3. B+ Tree
+A B+ Tree is a self-balancing variation of a B-Tree widely used for database indexes. Internal nodes contain separator keys and child pointers, while leaf nodes contain all indexed key entries and references to records or data pages. Leaf nodes are usually linked together, making sequential access and range queries efficient. Searches for indexed records reach the leaf level.
+
+## Key Differences
+- M-way Tree: Multiple children; balance is not guaranteed.
+- B-Tree: Balanced; records or record pointers may be stored in internal and leaf nodes.
+- B+ Tree: Balanced; indexed entries are stored at leaves, and linked leaves support efficient range queries.
+
+## Why databases use B-Trees and B+ Trees
+Their high branching factor reduces tree height and the number of disk-page accesses required to find data.
+
+
+## 2. Multilevel Indexing
+
+Multilevel indexing creates an index on top of another index when a single index becomes too large to search efficiently.
+
+- Level 1: Points to data blocks or records.
+- Level 2: Points to blocks of Level 1 index entries.
+- Higher levels reduce the number of index blocks that must be accessed.
+- Searching starts at the top level and moves down until the required data is found.
+
+## 3. Example
+
+Suppose a database contains 1,000,000 records.
+
+Without an index: the database may scan many records to find the required one.
+
+With an index: it searches index entries to locate the relevant data block.
+
+With multilevel indexing: it searches a small top-level index, then lower-level indexes, and finally the data block.
+
+## 4. Advantages
+
+- Faster data retrieval.
+- Fewer disk I/O operations for suitable queries.
+- Multilevel indexing scales to large indexes.
+
+## 5. Trade-offs
+
+- Extra storage is required.
+- Indexes must be maintained when data changes.
+- Indexing every column is not always beneficial.
+
+## HLD Interview Tip
+
+Indexes speed up reads at the cost of storage and write overhead. Multilevel indexes organize large indexes into levels; B-trees and B+ trees are common structures that keep searches efficient.
+
+
+
+# Database Indexing and Multilevel Indexing
+
+## 1. How Data Is Stored on Disk
+
+- A traditional hard disk drive (HDD) contains rotating platters with concentric tracks divided into sectors.
+- A sector is a physical storage unit; 512 bytes is a common traditional sector size, although modern disks may use 4 KB sectors.
+- The operating system and database work with logical blocks/pages. A database page is often 4 KB or 8 KB, depending on the database system and configuration.
+- A database table is stored across multiple pages/blocks on storage.
+
+## 2. Example of Block Storage
+
+Suppose:
+- Block size = 512 bytes
+- One user record = 128 bytes
+
+Records per block = 512 / 128 = 4 records.
+
+Therefore, one block can hold four user records, assuming no additional overhead and that records fit neatly into the block.
+
+Note: A block is a storage unit, not an offset. An offset is a position within a block or another addressable region.
+
+## 3. How Data Is Accessed
+
+1. An application requests a user record.
+2. The database checks whether the required page is already in its buffer cache in RAM.
+3. If it is not cached, the database requests the page from storage.
+4. The page is loaded into RAM, and the database accesses the required record.
+5. For an update, the database modifies the page in memory and records the change using its transaction/logging mechanisms.
+6. The modified page is written back to storage according to the database's flushing and durability rules. It does not necessarily happen immediately.
+
+## 4. Why Indexing Is Needed
+
+Suppose a table has 1,000,000 users. Without a suitable index, finding one user may require scanning many pages. This is called a table scan.
+
+An index stores search-key values and references to the corresponding records or pages. The database searches the index to locate the relevant data with fewer page accesses.
+
+Example: An index on user_id helps locate the record for user_id = 500123 without scanning the whole table in many cases.
+
+## 5. How an Index Works
+
+- Search key: the indexed column, such as user_id.
+- Index entry: the key value and a reference to the data location (or a primary-key value, depending on the index design).
+- Pointer/reference: identifies where the relevant record or page can be found.
+
+An index is like a book's index: find the topic in the index, then jump to the relevant page instead of reading the entire book.
+
+## 6. Multilevel Indexing
+
+When an index itself becomes too large, a higher-level index can point to blocks of the lower-level index.
+
+Search flow:
+Top-level index → Lower-level index → Data page → Required record.
+
+This reduces the number of index pages that need to be accessed. B-trees and B+ trees keep indexes balanced so searches remain efficient.
+
+## 7. Important Trade-offs
+
+- Indexes speed up many reads and searches.
+- Indexes consume disk space and sometimes memory.
+- INSERT, UPDATE, and DELETE operations may need index maintenance, adding overhead.
+- A query's performance depends on the index, query plan, cache, and data distribution.
+
+## Summary
+
+Disk stores database pages. Pages are brought into RAM for processing. Without an index, the database may scan many pages to find a record. An index stores keys and references to help locate the required page efficiently. Multilevel indexing organizes large indexes into multiple levels to reduce page accesses.
+
+
+
+## MongoDB
+MongoDB is a NoSQL document-oriented database that stores data in BSON documents (a binary representation of JSON-like data).
+
+### 1. Data Model
+- Data is stored as documents containing field-value pairs.
+- Documents are grouped into collections, similar to rows grouped into tables in relational databases.
+- Related data can be embedded inside a document or referenced from another document.
+- Example: { name: "Rahul", age: 21, skills: ["C++", "React"] }
+
+### 2. Schema Flexibility
+- Documents in the same collection can have different fields and data types.
+- Fields can be added as application requirements evolve without a mandatory table-wide schema migration.
+- Schema validation can be configured when consistent document structures are required.
+- Benefit: useful for evolving data models; trade-off: inconsistent documents may complicate queries and maintenance.
+
+### 3. Availability and Consistency
+- MongoDB supports replica sets to maintain multiple copies of data and provide automatic failover.
+- Read preference determines which replica members can serve reads.
+- Write concern determines the acknowledgment level for writes; read concern controls consistency and isolation guarantees for reads.
+- Stronger durability/consistency settings may increase latency or reduce availability during network failures.
+- MongoDB's behavior depends on configuration; it is not accurate to label every deployment simply AP or CP.
+
+### 4. Scalability
+- Vertical scaling: increase the CPU, RAM, or storage of a server.
+- Horizontal scaling: use sharding to distribute data across multiple servers.
+- A shard key determines how documents are distributed; a poor shard key can create hotspots or uneven distribution.
+- Replica sets improve redundancy and availability; sharding distributes data and workload.
+
+### When to Use MongoDB
+- Flexible or evolving document-shaped data.
+- Product catalogs, content management, user profiles, and event data.
+- Choose the data model and indexes based on query patterns and consistency requirements.
+
+
+## Time-Series Database (TSDB)
+
+A Time-Series Database is designed to store, organize, and query data points collected over time. Each data point typically contains a timestamp and one or more measured values.
+
+### 1. Data Model
+- Data is organized around timestamps and measurements.
+- Examples: timestamp, CPU usage, temperature, stock price, sensor readings.
+- Data is often written continuously in chronological order.
+
+Example:
+(timestamp, CPU_usage)
+10:00 AM, 45%
+10:01 AM, 52%
+10:02 AM, 48%
+
+### 2. Key Features
+- High write throughput for continuous data ingestion.
+- Efficient time-range queries and aggregations.
+- Time-based partitioning and retention policies.
+- Downsampling or compression to reduce storage requirements.
+
+### 3. Use Cases
+- Monitoring: CPU, RAM, server metrics.
+- IoT sensors and industrial telemetry.
+- Financial market prices.
+- Application logs and operational metrics (depending on data model).
+
+### 4. Scalability and Design
+- Data is commonly partitioned into time windows or chunks.
+- Older data can be compressed, downsampled, or deleted using retention policies.
+- High-cardinality labels (many unique combinations of tags) can increase storage and query costs.
+
+### 5. Examples
+- InfluxDB
+- TimescaleDB (time-series capabilities built on PostgreSQL)
+- Prometheus (primarily a monitoring metrics system with a time-series data model)
+
+### HLD Tip
+Use a TSDB when most data is timestamped measurements and the workload involves frequent writes, time-range queries, and aggregations over time. Choose based on retention, query patterns, cardinality, and consistency requirements.
+
+
+## Graph Database
+
+A Graph Database stores data as nodes and relationships (edges), making it useful for representing and querying highly connected data.
+
+### 1. Data Model
+- Nodes: represent entities such as users, products, or cities.
+- Edges: represent relationships between nodes, such as FOLLOWS, FRIEND_OF, or LIVES_IN.
+- Properties: store details on nodes or relationships, such as name, age, or since_date.
+
+Example: (Rahul)-[FOLLOWS]->(Aman)
+
+### 2. How It Works
+- The database stores entities and their relationships explicitly.
+- Queries traverse relationships to find connected entities instead of relying mainly on repeated joins across tables.
+- Efficient for multi-hop queries, such as finding friends of friends.
+
+### 3. Schema Flexibility
+- Many graph databases support flexible node labels, relationship types, and properties.
+- The exact schema and constraints depend on the graph database.
+
+### 4. Scalability
+- Graph workloads can be difficult to distribute because connected nodes may live on different machines.
+- Partitioning and replication strategies depend on the database and workload.
+- Highly connected nodes can become hotspots.
+
+### 5. Use Cases
+- Social networks and friend recommendations.
+- Fraud detection and transaction networks.
+- Knowledge graphs and recommendation engines.
+- Network topology and dependency analysis.
+
+### 6. Examples
+- Neo4j
+- Amazon Neptune
+- JanusGraph
+
+### 7. HLD Trade-offs
+- Strength: relationship traversal and connected-data queries.
+- Trade-off: not always ideal for simple tabular queries, large analytical scans, or workloads without meaningful relationships.
+
+###  
+Choose a graph database when relationships are central to the application and queries frequently traverse multiple connections.
+
+
+## Apache Cassandra
+
+Apache Cassandra is a distributed, wide-column NoSQL database designed for high availability, horizontal scalability, and handling large volumes of data across multiple servers.
+
+### 1. Data Model
+- Keyspace: similar to a database; defines replication settings.
+- Table: stores rows and columns.
+- Primary key: consists of a partition key and optional clustering columns.
+- Partition key determines which nodes store the data; clustering columns determine row ordering within a partition.
+
+### 2. Schema Flexibility
+- Cassandra uses tables with defined columns, but supports flexible data modeling through features such as adding columns.
+- Tables are commonly designed around specific queries rather than normalized like traditional relational databases.
+- Denormalization and duplicate data are common to make reads efficient.
+
+### 3. Availability and Consistency
+- Peer-to-peer architecture: nodes can accept requests without a single central primary node.
+- Replication stores copies of data on multiple nodes.
+- Tunable consistency lets clients choose the number of replica acknowledgments required for reads and writes.
+- QUORUM reads and writes can provide strong consistency for a particular operation when the replica sets and failure conditions meet the required overlap.
+- Eventual consistency is possible when weaker consistency levels are used.
+
+### 4. Scalability
+- Horizontal scaling: add nodes to the cluster.
+- Data is distributed using partition keys and token ranges.
+- Replication improves availability and fault tolerance.
+- Good partition-key design is essential; hot or oversized partitions can hurt performance.
+
+### 5. Read and Write
+- Writes are generally written to a commit log and memtable, then later flushed to SSTables on disk.
+- Reads may consult memtables, caches, and SSTables; compaction merges SSTables over time.
+- Cassandra is optimized for high-volume writes and predictable query patterns.
+
+### 6. Use Cases
+- IoT and sensor data.
+- Messaging and activity feeds.
+- Time-stamped events and logs.
+- Large-scale applications requiring high availability across data centers.
+
+### 7. Limitations
+- No general-purpose joins or relational-style ad hoc querying.
+- Query-driven data modeling is important.
+- Secondary indexes and unrestricted queries are not a substitute for a well-designed partition key.
+
+###
+Choose Cassandra for write-heavy, distributed workloads that need horizontal scaling and high availability. Design partition keys around your most important queries.
