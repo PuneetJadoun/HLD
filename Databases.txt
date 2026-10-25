@@ -316,6 +316,24 @@ Apache Cassandra is a distributed, wide-column NoSQL database designed for high 
 
 ### 6. Use Cases
 - IoT and sensor data.
+
+
+DB Name       Use Case                         Example                         Data Model        A/C    Horizontal Scalability
+
+MongoDB       Read-heavy operations             Product info                    BSON (Doc)        A      High
+              Flexible schema                   User profiles
+
+Cassandra     Write-heavy operations            Inventory updates,              Tables (CQL)      A      High
+              Analytical apps                   Analytics,                      Graph (CQL)       C
+              (Columnar DB queries)             History
+
+Neo4j         Graph                             Social media connections,       Graph             A      High
+                                               Recommendations
+
+InfluxDB      Time-series data                  IoT, food order tracking,       Indexed           A      High
+              Logs, monitoring                  Local tracking                  on time
+
+
 - Messaging and activity feeds.
 - Time-stamped events and logs.
 - Large-scale applications requiring high availability across data centers.
@@ -327,3 +345,219 @@ Apache Cassandra is a distributed, wide-column NoSQL database designed for high 
 
 ###
 Choose Cassandra for write-heavy, distributed workloads that need horizontal scaling and high availability. Design partition keys around your most important queries.
+
+
+## Transactions in Distributed Systems
+
+A distributed transaction is a group of operations performed across multiple services, databases, or servers to achieve a single business goal.
+
+Example: Money transfer requires debiting Account A and crediting Account B.
+
+### Challenges
+- Network failures and delays
+- Server crashes
+- Data inconsistency
+- Coordinating multiple databases
+
+### ACID Properties
+- **Atomicity:** All operations succeed or none do.
+- **Consistency:** Data remains valid.
+- **Isolation:** Concurrent transactions do not interfere incorrectly.
+- **Durability:** Committed changes persist.
+
+### Approaches
+1. **Two-Phase Commit (2PC):** A coordinator asks participants to prepare, then instructs them to commit or abort.
+2. **Three-Phase Commit (3PC):** Adds a pre-commit phase to reduce certain blocking scenarios.
+3. **Saga Pattern:** Splits a transaction into local transactions and uses compensating actions if a step fails.
+## Pessimistic Lock vs Optimistic Lock
+
+### 1. Pessimistic Lock
+- Assumes conflicts are likely to happen.
+- Locks the data before updating it.
+- Other transactions must wait until the lock is released.
+- Prevents concurrent modifications to the locked resource.
+
+**Example:** Two users try to book the same seat. The first user locks the seat, and the second must wait.
+
+### 2. Optimistic Lock
+- Assumes conflicts are rare.
+- Allows multiple transactions to read data simultaneously without locking it in advance.
+- Before updating, checks whether the data has changed using a version number or timestamp.
+- If a conflict is detected, the update fails and can be retried.
+
+**Example:** Two users edit the same profile. If one saves first, the other user's update is rejected if it uses an outdated version.
+
+### Key Differences
+
+| Feature | Pessimistic Lock | Optimistic Lock |
+|---|---|---|
+| Approach | Lock first | Check before updating |
+| Conflicts | Assumes frequent conflicts | Assumes rare conflicts |
+| Blocking | Other transactions may wait | Usually no waiting for a data lock during reading |
+| Overhead | Lock management | Version/conflict checks |
+| Best for | High contention | Low contention |
+| Example | Bank balance updates | Profile editing |
+
+**Remember:** Pessimistic locking prevents conflicts by locking data; optimistic locking detects conflicts when updating.
+
+
+## Two-Phase Commit (2PC)
+
+Two-Phase Commit is a distributed transaction protocol that ensures all participating databases either **commit a transaction or abort it**.
+
+### 1. Prepare Phase
+- The coordinator asks all participants whether they are ready to commit.
+- Each participant prepares the transaction and replies YES or NO.
+- Participants prepare to commit but do not finalize the transaction yet.
+
+### 2. Commit Phase
+- If all participants vote YES, the coordinator sends COMMIT.
+- If any participant votes NO, the coordinator sends ABORT.
+- Participants execute the decision and release their resources.
+
+### Example
+A money transfer involves two databases:
+- Database A: Deduct ₹1,000.
+- Database B: Add ₹1,000.
+
+**Prepare:** Both databases confirm they are ready.
+
+**Commit:** If both vote YES, both commit. If either votes NO, both abort.
+
+### Advantages
+- Ensures atomic commitment across multiple databases.
+- Prevents partial commits under the protocol's assumptions.
+
+### Disadvantages
+- Can block if the coordinator fails at a critical point.
+- Participants may hold locks and resources while waiting.
+- Requires communication between the coordinator and participants.
+
+**Remember:** 2PC = Prepare → Commit/Abort. It provides atomic commitment, but coordinator failures can cause blocking.
+
+## Three-Phase Commit (3PC)
+
+3PC is a distributed transaction protocol that adds an extra phase to 2PC to reduce the risk of blocking when the coordinator fails.
+
+### 1. CanCommit Phase
+- Coordinator asks all participants whether they can commit.
+- Participants reply YES or NO.
+
+### 2. PreCommit Phase
+- If all participants vote YES, the coordinator sends PRE-COMMIT.
+- Participants prepare to commit and acknowledge the coordinator.
+- If any participant votes NO, the transaction is aborted.
+
+### 3. DoCommit Phase
+- Coordinator sends COMMIT.
+- Participants commit the transaction and release resources.
+
+### Advantages
+- Reduces blocking compared with 2PC under certain failure assumptions.
+- Separates preparation from the final commit decision.
+
+### Disadvantages
+- Requires more communication rounds than 2PC.
+- Does not guarantee non-blocking behavior under arbitrary network partitions or timing failures.
+## Saga Pattern
+
+The Saga Pattern is a design pattern used to manage distributed transactions in microservices by breaking a large transaction into multiple smaller local transactions.
+
+Each service commits its own transaction. If a step fails, **compensating transactions** are executed to reverse the business effects of previously completed steps.
+
+### How It Works
+1. Execute the first local transaction.
+2. Execute the next transaction in another service.
+3. Continue until all transactions succeed.
+4. If a step fails, execute compensating transactions in reverse order.
+
+### Example: E-commerce
+1. Order Service → Create order.
+2. Payment Service → Process payment.
+3. Inventory Service → Reserve product.
+4. Shipping Service → Arrange delivery.
+
+If inventory reservation fails:
+- Refund the payment.
+- Cancel the order.
+
+### Types of Saga
+1. **Choreography:** Services communicate through events without a central coordinator.
+2. **Orchestration:** A central orchestrator controls the sequence of transactions and compensations.
+
+### Advantages
+- Supports loosely coupled microservices.
+- Avoids a global database transaction.
+- Improves scalability and resilience.
+
+### Disadvantages
+- Requires handling failures and retries.
+- Data may be temporarily inconsistent.
+- Compensation logic adds complexity.
+
+**Key Point:** Saga uses local transactions and compensating actions instead of a single global atomic transaction. It commonly provides eventual consistency.
+
+
+## Normalization in DBMS
+
+Normalization is the process of organizing database tables to **reduce data redundancy and avoid update anomalies**.
+
+**Example (Before Normalization):**
+
+| Student_ID | Student_Name | Course |
+|---|---|---|
+| 1 | Rahul | CSE |
+| 2 | Aman | CSE |
+| 3 | Priya | ECE |
+
+Here, the course information may be repeated for many students.
+
+**After Normalization:** Split data into related tables.
+
+**Students Table**
+
+| Student_ID | Student_Name | Course_ID |
+|---|---|---|
+| 1 | Rahul | 101 |
+| 2 | Aman | 101 |
+| 3 | Priya | 102 |
+
+**Courses Table**
+
+| Course_ID | Course_Name |
+|---|---|
+| 101 | CSE |
+| 102 | ECE |
+
+### Types of Normalization
+- **1NF:** Each cell contains a single value.
+- **2NF:** 1NF + no partial dependency on a composite key.
+- **3NF:** 2NF + no transitive dependency.
+- **BCNF:** Every determinant must be a candidate key.
+
+**Remember:** Normalization reduces duplicate data and improves data consistency.
+
+
+
+**Flow:** CanCommit → PreCommit → DoCommit.
+
+**Key Difference:** 2PC has 2 phases (Prepare, Commit/Abort), while 3PC has 3 phases (CanCommit, PreCommit, DoCommit).
+
+
+
+### Example: E-commerce
+Order Created → Payment Processed → Inventory Reserved.
+
+If inventory reservation fails, the system refunds the payment and cancels the order using compensating transactions.
+
+### Key Difference
+- **2PC:** Coordinated atomic commit.
+- **Saga:** Local transactions with compensating actions; eventual consistency is common.
+
+**Related concepts:** CAP theorem, eventual consistency, idempotency, distributed locking, and the Outbox pattern.
+
+
+
+
+
+
