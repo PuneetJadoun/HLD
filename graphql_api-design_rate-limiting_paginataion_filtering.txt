@@ -1,0 +1,343 @@
+# APIs and Types of APIs — HLD Notes
+
+## 1. What is an API?
+
+API (Application Programming Interface) is a way for two software applications to communicate with each other.
+
+Example: In a food delivery app, the frontend sends a request to the backend API to fetch order status. The backend processes the request and returns the response.
+
+In High-Level Design (HLD), APIs define how different components or services communicate.
+
+## 2. Types of APIs
+
+### A. REST API
+REST stands for Representational State Transfer.
+
+- An architectural style for designing web APIs.
+- Uses HTTP methods: GET, POST, PUT, PATCH, DELETE.
+- Commonly exchanges data in JSON format.
+- Uses multiple endpoints representing resources.
+- Simple, scalable, and widely used.
+
+Example:
+GET /api/users/101
+
+Response:
+{
+  "id": 101,
+  "name": "Rahul"
+}
+
+Use cases: E-commerce applications, social media, and general web applications.
+
+### B. SOAP API
+SOAP stands for Simple Object Access Protocol.
+
+- A protocol for exchanging structured messages.
+- Uses XML-based messages.
+- Supports standards for security, transactions, and reliable messaging.
+- Has strict rules and formal contracts.
+- Generally more complex than REST.
+
+Example:
+<GetUser>
+  <UserId>101</UserId>
+</GetUser>
+
+Use cases: Banking systems, enterprise applications, and legacy system integrations.
+
+### C. GraphQL API
+GraphQL is a query language for APIs and a runtime for executing queries.
+
+- Allows clients to request exactly the data they need.
+- Usually uses a single endpoint.
+- Helps reduce over-fetching and under-fetching of data.
+- Can fetch related data in a single query.
+- Requires careful query validation and performance management.
+
+Example query:
+query {
+  user(id: 101) {
+    name
+    email
+  }
+}
+
+Use cases: Complex frontend applications, dashboards, and applications that need flexible data fetching.
+
+## 3. REST vs SOAP vs GraphQL
+
+| Feature | REST | SOAP | GraphQL |
+|---|---|---|---|
+| Type | Architectural style | Protocol | Query language + runtime |
+| Data format | Usually JSON | XML | Usually JSON response |
+| Endpoints | Multiple resource URLs | Often service-defined | Usually one endpoint |
+| Data selection | Defined by endpoint | Defined by operation contract | Client selects fields |
+| Complexity | Low to moderate | High | Moderate |
+| Best for | General web APIs | Enterprise integrations | Flexible data queries |
+
+## 4. Which API Should You Choose in HLD?
+
+- REST: Best default choice for most CRUD applications and microservices.
+- SOAP: Best when integrating with systems that require SOAP-specific enterprise standards.
+- GraphQL: Best when clients need flexible queries across multiple related resources.
+
+## 5. Important HLD Interview Points
+
+When designing APIs, consider:
+- Authentication and authorization
+- Rate limiting
+- Pagination and filtering
+- API versioning
+- Error handling and HTTP status codes
+- Timeouts and retries
+- Caching
+- Logging and monitoring
+
+Remember: REST is an architectural style, SOAP is a protocol, and GraphQL is a query language and execution system.
+
+
+
+# Components of a REST API — HLD Notes
+
+A REST API request consists of several parts: **HTTP method, URL, headers, path parameters, query parameters, and request body**. The server sends back an HTTP response containing a status code, headers, and sometimes a response body.
+
+## 1. HTTP Methods
+Define what action the client wants to perform.
+
+- GET: Retrieve data.
+- POST: Create a resource or submit data.
+- PUT: Replace an existing resource.
+- PATCH: Partially update a resource.
+- DELETE: Delete a resource.
+
+Example:
+GET /api/users/101
+
+## 2. URL / Endpoint
+The address of the API resource.
+
+Example:
+https://api.example.com/users/101
+
+- Base URL: https://api.example.com
+- Endpoint/path: /users/101
+
+## 3. Path Parameters
+Identify a specific resource in the URL path.
+
+Example:
+GET /api/users/101
+
+Here, 101 is the user ID.
+
+Common use: Fetching, updating, or deleting a specific user or product.
+
+## 4. Query Parameters
+Pass optional parameters to filter, sort, search, or paginate results.
+
+Example:
+GET /api/products?category=shoes&page=2&limit=10
+
+- category=shoes: Filter by category.
+- page=2: Select the second page.
+- limit=10: Return up to 10 items.
+
+Query parameters begin after `?` and are separated by `&`.
+
+## 5. Headers
+Carry metadata about the request or response.
+
+Common request headers:
+
+- Content-Type: Format of the request body.
+- Accept: Response format the client can accept.
+- Authorization: Credentials or access token.
+- User-Agent: Information about the client.
+
+Example:
+Authorization: Bearer <token>
+Content-Type: application/json
+Accept: application/json
+
+## 6. Request Body
+Contains the data sent to the server, typically with POST, PUT, or PATCH requests.
+
+Example:
+POST /api/users
+
+{
+  "name": "Rahul",
+  "email": "rahul@example.com"
+}
+
+The server processes this data to create a user.
+
+GET requests generally don't use a request body.
+
+## 7. HTTP Status Code
+Indicates the result of the request.
+
+Common status codes:
+
+- 200 OK: Request successful.
+- 201 Created: Resource created successfully.
+- 204 No Content: Successful request with no response body.
+- 400 Bad Request: Invalid request.
+- 401 Unauthorized: Authentication is missing or invalid.
+- 403 Forbidden: User lacks permission.
+- 404 Not Found: Resource doesn't exist.
+- 500 Internal Server Error: Unexpected server-side error.
+
+## 8. Response Headers
+Provide metadata about the server's response.
+
+Examples:
+- Content-Type: application/json
+- Cache-Control: Caching instructions
+- Set-Cookie: Set a cookie in the client.
+
+## 9. Response Body
+Contains the returned data, often in JSON format.
+
+Example:
+{
+  "id": 101,
+  "name": "Rahul",
+  "email": "rahul@example.com"
+}
+
+A response body is optional; for example, a 204 response has no body.
+
+## Complete Example
+
+Request:
+
+PATCH /api/users/101?notify=true HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "Rahul Kumar"
+}
+
+Breakdown:
+- Method: PATCH
+- Path parameter: 101
+- Query parameter: notify=true
+- Headers: Authorization, Content-Type
+- Request body: Updated name
+
+Response:
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": 101,
+  "name": "Rahul Kumar"
+}
+
+## Quick Summary for HLD
+
+| Component | Purpose |
+|---|---|
+| HTTP method | Defines the action |
+| URL / endpoint | Identifies the API resource or operation |
+| Path parameters | Identify a specific resource |
+| Query parameters | Filter, sort, search, or paginate |
+| Request headers | Send metadata and authentication |
+| Request body | Send input data |
+| Status code | Indicates success or failure |
+| Response headers | Provide response metadata |
+| Response body | Returns data to the client |
+
+Remember: **A REST API request is not just a URL.** It combines an HTTP method, a target URL, optional headers and parameters, and sometimes a body. The response includes a status code, headers, and optionally a body.
+
+
+
+# ETag in REST API — HLD Notes
+
+## 1. What is ETag?
+
+ETag (Entity Tag) is an HTTP response header used to identify a specific version of a resource.
+
+It helps with **caching and detecting whether a resource has changed**, reducing unnecessary data transfer.
+
+## 2. How Does ETag Work?
+
+1. The client sends a GET request.
+2. The server returns the resource along with an ETag.
+3. The client stores the response and its ETag.
+4. Later, the client sends the ETag in the `If-None-Match` request header.
+5. If the resource hasn't changed, the server returns `304 Not Modified` without sending the response body again.
+6. If the resource has changed, the server returns `200 OK` with the updated data and a new ETag.
+
+## 3. Example
+
+**First request:**
+
+GET /api/products/101
+
+Response:
+
+HTTP/1.1 200 OK
+ETag: "v1"
+
+{
+  "id": 101,
+  "name": "Laptop",
+  "price": 50000
+}
+
+**Second request:**
+
+GET /api/products/101
+If-None-Match: "v1"
+
+If the resource hasn't changed, the response is:
+
+HTTP/1.1 304 Not Modified
+
+No response body is needed, so the client can reuse its cached copy.
+
+## 4. ETag for Updates (Optimistic Concurrency)
+
+ETag can also prevent one user from accidentally overwriting another user's changes.
+
+For example, a client sends:
+
+PATCH /api/products/101
+If-Match: "v1"
+Content-Type: application/json
+
+{
+  "price": 45000
+}
+
+- If the current ETag is still `"v1"`, the server can accept the update and return a new ETag.
+- If another user has already changed the resource, the ETag no longer matches. The server can reject the update with `412 Precondition Failed`.
+
+This technique is called **optimistic concurrency control**.
+
+## 5. Important Headers and Status Codes
+
+| Item | Purpose |
+|---|---|
+| `ETag` | Identifies a resource version |
+| `If-None-Match` | Checks whether a cached representation is still current |
+| `If-Match` | Ensures an update applies only to an expected version |
+| `304 Not Modified` | Cached representation can be reused |
+| `412 Precondition Failed` | A request condition, such as `If-Match`, was not satisfied |
+
+## 6. Why Is ETag Useful in HLD?
+
+- Reduces bandwidth and unnecessary response data.
+- Improves performance through conditional requests.
+- Helps prevent lost updates in concurrent systems.
+- Useful for APIs serving frequently accessed resources.
+
+**Remember:** `If-None-Match` is commonly used for cache validation, while `If-Match` is commonly used to protect updates against concurrent modifications.
+
+
