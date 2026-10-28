@@ -341,3 +341,55 @@ This technique is called **optimistic concurrency control**.
 **Remember:** `If-None-Match` is commonly used for cache validation, while `If-Match` is commonly used to protect updates against concurrent modifications.
 
 
+# Rate Limiting — HLD Notes
+
+## 1. What is Rate Limiting?
+
+Rate limiting is a technique used to **restrict the number of requests a client can make to a server within a specific time period**.
+
+It helps prevent server overload, API abuse, and denial-of-service attacks.
+
+## 2. Example
+
+Suppose an API allows a maximum of 100 requests per minute per user.
+
+- Requests 1–100: Allowed.
+- Request 101 within the same limit window: Rejected.
+- The user can make more requests when the applicable limit window allows it.
+
+The server typically returns:
+
+HTTP/1.1 429 Too Many Requests
+
+## 3. How Does It Work?
+
+1. A client sends an API request.
+2. The rate limiter checks the client's request count.
+3. If the client is within the limit, the request proceeds.
+4. If the limit is exceeded, the server rejects the request.
+
+Rate limits can be applied per user, API key, IP address, or endpoint.
+
+## 4. Common Rate-Limiting Algorithms
+
+- Fixed Window: Counts requests within fixed time intervals.
+- Sliding Window: Tracks requests over a moving time interval.
+- Token Bucket: Allows bursts of requests while controlling the average request rate.
+- Leaky Bucket: Processes requests at a controlled rate to smooth traffic.
+
+## 5. Where Is Rate Limiting Implemented?
+
+It can be implemented at an API Gateway, reverse proxy such as Nginx, or within the application backend.
+
+Redis is often used to maintain shared request counters across multiple server instances.
+
+## 6. Why Is It Important in HLD?
+
+- Protects servers from excessive traffic.
+- Prevents API abuse and brute-force attempts.
+- Helps maintain availability and fair resource usage.
+- Controls infrastructure costs.
+
+**Remember:** Rate limiting controls how frequently clients can make requests. The HTTP status code `429 Too Many Requests` is commonly returned when a limit is exceeded.
+
+
