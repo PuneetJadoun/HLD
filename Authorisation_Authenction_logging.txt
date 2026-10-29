@@ -34,3 +34,281 @@ HLD Considerations:
 - Use PKCE for public clients.
 
 Note: OAuth 2.0 handles authorization, not authentication by itself. OpenID Connect (OIDC) adds an identity layer for user authentication.
+
+
+JWT (JSON Web Token) — Why JWT?
+
+JWT is a compact, digitally signed token used to securely transmit information between parties. It is commonly used for authentication and authorization.
+
+Why use JWT?
+1. Stateless Authentication: The server does not need to store session data for every user.
+2. Scalability: Works well across multiple servers and microservices.
+3. Fast Verification: The server can verify a token's signature without querying a session database on every request.
+4. Authorization: Tokens can contain claims such as user ID and roles.
+5. Cross-Service Communication: Services can verify tokens issued by a trusted authentication server.
+
+How JWT Works:
+1. User logs in with credentials.
+2. Server verifies the credentials.
+3. Server generates and signs a JWT.
+4. Client stores the token securely.
+5. Client sends the token with subsequent requests, usually in the Authorization header.
+6. Server verifies the signature and validates claims such as expiration.
+7. If valid, the server grants access to the protected resource.
+
+JWT Structure:
+Header.Payload.Signature
+
+- Header: Token type and signing algorithm.
+- Payload: Claims such as user ID, role, and expiration.
+- Signature: Verifies token integrity and authenticity.
+
+Why JWT with OAuth 2.0?
+- OAuth 2.0 defines the authorization flow.
+- JWT is one possible format for an access token.
+- OAuth 2.0 access tokens can also be opaque tokens.
+
+Important Limitations:
+- JWT payloads are encoded, not encrypted by default.
+- Do not store passwords or sensitive secrets inside JWTs.
+- JWTs are difficult to revoke immediately unless additional mechanisms are implemented.
+- Use HTTPS, short-lived access tokens, and secure token storage.
+
+Use Cases:
+- API authentication
+- Microservices authorization
+- Single Sign-On (with OpenID Connect)
+- Role-based access control
+
+
+SSO (Single Sign-On):
+SSO is an authentication mechanism that allows a user to log in once and access multiple applications without logging in separately to each one.
+
+Working:
+1. User opens an application.
+2. Application redirects the user to the Identity Provider (IdP).
+3. User authenticates with the IdP.
+4. IdP issues an authentication assertion or token.
+5. Application validates it and grants access.
+6. User can access other trusted applications without logging in again.
+
+Components:
+- User: Person accessing applications.
+- Identity Provider (IdP): Authenticates the user.
+- Service Provider (SP): Application the user wants to access.
+
+Benefits:
+- Better user experience.
+- Centralized authentication.
+- Fewer passwords to manage.
+- Easier access control.
+
+Examples: Google Workspace, Microsoft Entra ID, Okta.
+
+
+SAML (Security Assertion Markup Language):
+SAML is an XML-based standard used to exchange authentication and authorization-related information between an Identity Provider (IdP) and a Service Provider (SP). It is commonly used for enterprise SSO.
+
+Working:
+1. User accesses an application (SP).
+2. SP redirects the user to the IdP.
+3. User authenticates with the IdP.
+4. IdP generates a digitally signed SAML assertion.
+5. Assertion is sent to the SP, commonly through the user's browser.
+6. SP validates the assertion and grants access.
+
+Key Points:
+- Uses XML-based assertions.
+- Commonly uses browser-based redirects and HTTP POST.
+- Widely used for enterprise and workforce SSO.
+- Supports signed assertions and optional encryption.
+
+Example: An employee logs in once through their company's identity system and accesses multiple enterprise applications.
+
+
+OpenID Connect (OIDC):
+OIDC is an identity and authentication layer built on top of OAuth 2.0. It allows applications to verify a user's identity and obtain basic profile information.
+
+Working:
+1. User tries to log in to an application.
+2. Application redirects the user to the OpenID Provider.
+3. User authenticates and grants permission.
+4. Provider returns an authorization code.
+5. Application exchanges the code for tokens.
+6. Application validates the ID Token to verify the user's identity.
+7. Application creates a session and grants access.
+
+Key Components:
+- OpenID Provider: Authenticates users and issues tokens.
+- ID Token: Contains identity claims about the user.
+- Access Token: Allows access to protected resources.
+- UserInfo Endpoint: Provides user profile information.
+
+Key Points:
+- Built on OAuth 2.0.
+- Uses JSON-based tokens, commonly JWTs.
+- Supports web, mobile, and modern applications.
+- Commonly uses Authorization Code Flow with PKCE.
+
+Examples: Sign in with Google, Microsoft, or another OIDC provider.
+
+
+Heartbeat:
+A heartbeat is a periodic signal sent by a server, service, or node to indicate that it is alive and functioning.
+
+How it works:
+1. A server sends a heartbeat signal at regular intervals.
+2. A monitoring service or coordinator receives the heartbeat.
+3. If heartbeats arrive on time, the server is considered healthy.
+4. If heartbeats stop for a specified timeout, the server may be marked as unhealthy.
+5. The system can trigger alerts, restart the service, or redirect traffic to healthy servers.
+
+Example:
+Server A ---- Heartbeat ----> Load Balancer
+Server B ---- Heartbeat ----> Load Balancer
+Server C ---- No Heartbeat --> Marked Unhealthy
+
+Uses:
+- Health monitoring
+- Failure detection
+- Distributed systems
+- Cluster management
+- Load balancing
+- Leader election
+
+Benefits:
+- Detects node or service failures.
+- Improves availability and fault tolerance.
+- Helps route requests to healthy servers.
+
+Important:
+Missing a heartbeat does not always mean a server has crashed. It may be caused by network delays or congestion. Systems typically use timeouts and multiple missed heartbeats before declaring a failure.
+
+
+API Gateway:
+An API Gateway is a single entry point between clients and backend services. It receives client requests, routes them to the appropriate service, and returns the response.
+
+How it works:
+1. Client sends a request to the API Gateway.
+2. Gateway authenticates the request or validates the token.
+3. Gateway applies rate limiting, logging, and other policies.
+4. Gateway routes the request to the appropriate backend service.
+5. Backend service processes the request and returns a response.
+6. Gateway sends the response back to the client.
+
+Architecture:
+
+Client
+   |
+   v
+API Gateway
+   |
+   |----> User Service
+   |----> Order Service
+   |----> Payment Service
+   |----> Product Service
+   |
+   v
+Response to Client
+
+Key Responsibilities:
+- Request routing
+- Authentication and authorization
+- Rate limiting and throttling
+- SSL/TLS termination
+- Request/response transformation
+- Logging and monitoring
+- Load balancing (depending on implementation)
+- API versioning
+
+Benefits:
+- Single entry point for clients.
+- Hides internal service architecture.
+- Centralizes common security policies.
+- Simplifies client communication with microservices.
+
+Challenges:
+- Can become a bottleneck or single point of failure if not deployed redundantly.
+- Adds network latency.
+- Requires scaling and monitoring.
+
+Examples:
+- Amazon API Gateway
+- Kong
+- NGINX
+- Apigee
+- Azure API Management
+
+Important:
+An API Gateway is not necessarily a load balancer. A gateway routes and manages API requests, while a load balancer distributes traffic across multiple healthy instances. Some products provide both capabilities.
+
+
+
+ELK Stack:
+ELK stands for Elasticsearch, Logstash, and Kibana. It is used to collect, process, store, search, and visualize logs from applications and infrastructure.
+
+Components:
+
+1. Elasticsearch:
+   - Stores and indexes log data.
+   - Enables fast searching and querying.
+   - Supports analysis of large volumes of logs.
+
+2. Logstash:
+   - Collects logs from different sources.
+   - Parses, filters, and transforms log data.
+   - Sends processed logs to Elasticsearch.
+
+3. Kibana:
+   - Visualizes log data using dashboards and charts.
+   - Helps developers investigate errors and monitor applications.
+   - Supports log analysis and troubleshooting.
+
+Working:
+1. Applications and servers generate logs.
+2. Logstash collects and processes the logs.
+3. Elasticsearch indexes and stores the logs.
+4. Kibana queries Elasticsearch and displays dashboards.
+5. Developers use the dashboards to identify errors and performance issues.
+
+Architecture:
+
+Application / Server
+        |
+        v
+     Logstash
+        |
+        v
+   Elasticsearch
+        |
+        v
+      Kibana
+        |
+        v
+Dashboards / Log Analysis
+
+Use Cases:
+- Centralized logging
+- Application debugging
+- Error tracking
+- Infrastructure monitoring
+- Security event analysis
+- Troubleshooting distributed systems
+
+Benefits:
+- Centralizes logs from multiple services.
+- Makes searching and analyzing logs easier.
+- Helps identify failures across microservices.
+- Supports real-time or near-real-time log analysis.
+
+Limitations:
+- Requires storage and resource management.
+- Can be complex to configure and scale.
+- Large log volumes can increase infrastructure costs.
+
+Important:
+The modern Elastic Stack also includes Beats and Elastic Agent for collecting and forwarding data. Logstash is not mandatory in every architecture.
+
+Example:
+If a payment service returns HTTP 500 errors, logs from multiple servers can be searched in Kibana to identify the cause.
+
