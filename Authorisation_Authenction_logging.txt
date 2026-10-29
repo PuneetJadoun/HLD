@@ -1,0 +1,36 @@
+OAuth 2.0:
+OAuth 2.0 is an authorization framework that allows applications to access a user's resources on another service without sharing the user's password.
+
+Working:
+1. User requests access to an application.
+2. Application redirects the user to the Authorization Server.
+3. User grants permission.
+4. Authorization Server issues an Access Token.
+5. Application uses the token to access protected resources from the Resource Server.
+
+Key Components:
+- Resource Owner: The user who owns the data.
+- Client: The application requesting access.
+- Authorization Server: Authenticates the user and issues tokens.
+- Resource Server: Hosts protected resources.
+- Access Token: Used to access protected resources.
+
+Common Grant Types:
+- Authorization Code + PKCE
+- Client Credentials
+- Device Authorization Grant
+- Refresh Token
+
+Use Cases:
+- Login with Google
+- Third-party API access
+- Secure delegated authorization
+
+HLD Considerations:
+- Use HTTPS for all communication.
+- Store tokens securely.
+- Apply token expiration and rotation policies.
+- Follow the principle of least privilege using scopes.
+- Use PKCE for public clients.
+
+Note: OAuth 2.0 handles authorization, not authentication by itself. OpenID Connect (OIDC) adds an identity layer for user authentication.
